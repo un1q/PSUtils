@@ -15,11 +15,11 @@ Function Format-XML {
         [parameter(Mandatory=$true, ValueFromPipeline)][xml] $Xml,
         [parameter(Mandatory=$false)][String] $Indent = 2
     )
-    Begin{}
+    Begin{} 
     Process {
         $StringWriter = New-Object System.IO.StringWriter 
         $XmlWriter = New-Object System.XMl.XmlTextWriter $StringWriter 
-        $XmlWriter.Formatting = “indented” 
+        $XmlWriter.Formatting = "indented" 
         $XmlWriter.Indentation = $Indent 
         $Xml.WriteContentTo($XmlWriter) 
         $XmlWriter.Flush() 
