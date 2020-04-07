@@ -50,3 +50,46 @@ function note {
 #########other utilsy
 function logoutwin32   {(Get-WmiObject -Class Win32_OperatingSystem).Win32Shutdown(0)}
 function date          {Get-Date -UFormat "%Y-%m-%d"}
+
+function Get-Zip-Items {
+	Param(
+		[parameter(ValueFromPipeline)] [System.IO.FileInfo[]]$File,
+		[parameter()] [String[]]$FilePath
+	)
+	Begin {
+		[Reflection.Assembly]::LoadWithPartialName('System.IO.Compression.FileSystem') | Out-Null
+	}
+	Process {
+		if ($File) {
+			$p = $File.FullName
+		} else {
+			$p = $FilePath
+		}
+		[IO.Compression.ZipFile]::OpenRead($p).Entries.FullName
+	}
+}
+
+function Find-In-Jar {
+	Param(
+		[parameter()] [String]$ClassName,
+		[parameter(ValueFromPipeline)] [System.IO.FileInfo[]]$File,
+		[parameter()] [String[]]$FilePath,
+		[parameter()] [Switch]$IncludeJarName
+	)
+	Begin {
+		[Reflection.Assembly]::LoadWithPartialName('System.IO.Compression.FileSystem') | Out-Null
+	}
+	Process {
+		if ($File) {
+			$p = $File.FullName
+		} else {
+			$p = $FilePath
+		}
+		$Pattern = '*' + ($ClassName -replace '\.','/') + ".class"
+		if ($IncludeJarName) {
+			Get-Zip-Items -FilePath $p | ? {$_ -like $Pattern} | %{[PSCustomObject]@{JarName=$p; FileName=$_}}
+		} else {
+			Get-Zip-Items -FilePath $p | ? {$_ -like $Pattern}
+		}
+	}
+}
